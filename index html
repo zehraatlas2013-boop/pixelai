@@ -3,135 +3,257 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PixelAI Search</title>
+  <title>pixelai</title>
 
   <style>
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b0d12;
-      color: white;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #ffffff;
+      color: #111111;
       display: flex;
-      justify-content: center;
-      align-items: center;
       height: 100vh;
+      overflow: hidden;
     }
 
-    .box {
-      width: 360px;
-      text-align: center;
+    /* 1. SOHBET GEÇMİŞİ (SOL PANEL) */
+    .sidebar {
+      width: 260px;
+      background: #f9f9f9;
+      border-right: 1px solid #ececec;
       padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h3 {
+      font-size: 14px;
+      color: #666;
+      margin-top: 0;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .history-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .history-item {
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 5px;
+      color: #333;
+    }
+
+    .history-item:hover {
+      background: #e2e2e2;
+    }
+
+    /* ANA İÇERİK ALANI */
+    .main-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 40px;
+      position: relative;
+    }
+
+    .header-area {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 10px 0;
+      letter-spacing: -0.5px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #666;
+      margin: 0 0 15px 0;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ececec;
+      margin-bottom: 30px;
+    }
+
+    /* 2. AI CEVAP YERİ (ORTA ALAN) */
+    .content-area {
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 100px; /* Yazma satırının altında kalmaması için */
+    }
+
+    .response-box {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #222;
+      white-space: pre-wrap;
+    }
+
+    /* 3. YAZMA SATIRI VE BUTON (ALT ALAN) */
+    .input-wrapper {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 800px;
+      width: calc(100% - 80px);
+      display: flex;
+      gap: 10px;
+      background: #ffffff;
     }
 
     input {
-      width: 100%;
-      padding: 12px;
+      flex: 1;
+      padding: 14px;
+      border: 1px solid #e2e2e2;
       border-radius: 8px;
-      border: none;
-      margin-top: 10px;
-      box-sizing: border-box;
-      display: block;
+      font-size: 15px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    input:focus {
+      border-color: #999;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
+      padding: 0 24px;
+      background: #111111;
+      color: #ffffff;
       border: none;
-      background: #5a7cff;
-      color: white;
       border-radius: 8px;
+      font-weight: 600;
       cursor: pointer;
-      display: block;
-      font-weight: bold;
+      transition: background 0.2s;
     }
 
     button:hover {
-      background: #3f63ff;
-    }
-
-    #out {
-      margin-top: 20px;
-      background: #1a1d27;
-      padding: 12px;
-      min-height: 120px;
-      border-radius: 8px;
-      white-space: pre-wrap;
-      text-align: left;
-      font-size: 14px;
-      line-height: 1.5;
+      background: #333333;
     }
   </style>
 </head>
 <body>
 
-<div class="box">
-  <h2>PixelAI Search 🤖</h2>
+  <!-- SOHBET GEÇMİŞİ BÖLÜMÜ -->
+  <div class="sidebar">
+    <h3>Geçmiş Aramalar</h3>
+    <ul class="history-list" id="historyList">
+      <!-- Geçmiş buraya JavaScript ile dolacak -->
+    </ul>
+  </div>
 
-  <input id="q" placeholder="Ne öğrenmek istiyorsun?">
-  <button onclick="ask()">Ara</button>
-
-  <div id="out">İstediğin her şeyi sorabilirsin...</div>
-</div>
-
-<script>
-async function ask() {
-  const q = document.getElementById("q").value.trim();
-  const out = document.getElementById("out");
-
-  if (!q) {
-    out.innerText = "Lütfen boş bırakma, bir şeyler yaz! ✍️";
-    return;
-  }
-
-  out.innerText = "AI düşünüyor... 🤖";
-
-  try {
-    out.innerText = await gemini(q);
-  } catch (error) {
-    out.innerText = "Beklenmedik bir hata oluştu ⚠️";
-  }
-}
-
-async function gemini(text) {
-  // DIKKAT: API anahtarını buraya yazmak sadece yerel (local) denemeler içindir!
-  const API_KEY = "GEMINI_API_KEY_BURAYA"; 
-
-  try {
-    const res = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{
-                text: "Sen bir arama motoru gibi davran. Kısa, net ve bilgi verici cevaplar ver.\n\nSoru: " + text
-              }]
-            }
-          ]
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    // Gelen veri yapısı kontrolü ve hata yönetimi
-    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-      return data.candidates[0].content.parts[0].text;
-    } else if (data.error) {
-      return "API Hatası: " + data.error.message;
-    }
+  <!-- ANA EKRAN -->
+  <div class="main-container">
     
-    return "Cevap yapısı çözülemedi.";
+    <div class="header-area">
+      <h1>pixelai</h1>
+      <p class="subtitle">AI powered search engine using Gemini API</p>
+      <hr>
+    </div>
 
-  } catch (e) {
-    console.error(e);
-    return "AI çalışmadı veya bağlantı reddedildi ⚠️";
-  }
-}
-</script>
+    <!-- AI CEVAP YERİ -->
+    <div class="content-area">
+      <div class="response-box" id="out">Ne öğrenmek istiyorsun? Yukarıdaki geçmişten seçebilir veya aşağıdan yeni bir arama başlatabilirsin.</div>
+    </div>
+
+    <!-- YAZMA SATIRI -->
+    <div class="input-wrapper">
+      <input id="q" placeholder="Bir şeyler yazın...">
+      <button onclick="ask()">Ara</button>
+    </div>
+
+  </div>
+
+  <script>
+    // Sayfa açıldığında geçmişi yükle
+    document.addEventListener("DOMContentLoaded", renderHistory);
+
+    // Enter tuşuna basınca aramayı tetikle
+    document.getElementById("q").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") ask();
+    });
+
+    async function ask() {
+      const qInput = document.getElementById("q");
+      const out = document.getElementById("out");
+      const text = qInput.value.trim();
+
+      if (!text) return;
+
+      out.innerText = "Düşünülüyor... 🤖";
+      qInput.value = ""; // Satırı temizle
+
+      // Geçmişe kaydet
+      saveToHistory(text);
+
+      // Backend API bağlantısı
+      const answer = await gemini(text);
+      out.innerText = answer;
+    }
+
+    async function gemini(text) {
+      // Önceki adımda kurduğun Render backend URL'sini buraya yapıştıracaksın:
+      const BACKEND_URL = "https://projenin-adi.onrender.com/api/search"; 
+
+      try {
+        const res = await fetch(BACKEND_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text })
+        });
+        const data = await res.json();
+        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Cevap alınamadı.";
+      } catch (e) {
+        return "Backend sunucusuna bağlanılamadı. Lütfen sunucunun açık olduğundan emin olun. ⚠️";
+      }
+    }
+
+    // SOHBET GEÇMİŞİ SİSTEMİ (LocalStorage)
+    function saveToHistory(text) {
+      let history = JSON.parse(localStorage.getItem("pixelai_history")) || [];
+      if (!history.includes(text)) {
+        history.unshift(text); // En başa ekle
+        localStorage.setItem("pixelai_history", JSON.stringify(history.slice(0, 15))); // Son 15 aramayı tut
+        renderHistory();
+      }
+    }
+
+    function renderHistory() {
+      const list = document.getElementById("historyList");
+      let history = JSON.parse(localStorage.getItem("pixelai_history")) || [];
+      list.innerHTML = history.map(item => `<li class="history-item" onclick="loadHistory('${item.replace(/'/g, "\\'")}')">${item}</li>`).join("");
+    }
+
+    function loadHistory(text) {
+      document.getElementById("q").value = text;
+      ask();
+    }
+  </script>
 
 </body>
 </html>
