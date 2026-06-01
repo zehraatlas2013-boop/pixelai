@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelAI Search</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0b0d12;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.box {
+  width: 360px;
+  text-align: center;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  margin-top: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  background: #5a7cff;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #3f63ff;
+}
+
+#out {
+  margin-top: 20px;
+  background: #1a1d27;
+  padding: 12px;
+  min-height: 120px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  text-align: left;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+  <h2>PixelAI Search 🤖</h2>
+
+  <input id="q" placeholder="Ne öğrenmek istiyorsun?">
+  <button onclick="ask()">Ara</button>
+
+  <div id="out"></div>
+</div>
+
+<script>
+async function ask() {
+  const q = document.getElementById("q").value;
+  const out = document.getElementById("out");
+
+  out.innerText = "AI düşünüyor... 🤖";
+
+  out.innerText = await gemini(q);
+}
+
+async function gemini(text) {
+  const API_KEY = "AQ.Ab8RN6KQ7N9GkWERiTXqmf5Un6XPCKgTUEciZR8XmR5YZZeIJ";
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + API_KEY,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{
+                text: "Sen bir arama motoru gibi davran. Kısa, net ve bilgi verici cevaplar ver.\n\nSoru: " + text
+              }]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    return data.candidates?.[0]?.content?.parts?.[0]?.text
+      || "Cevap alınamadı";
+
+  } catch (e) {
+    return "AI çalışmadı ⚠️";
+  }
+}
+</script>
+
+</body>
+</html>                 (bu kodu asıl dosya haline getirebilirim
