@@ -1,114 +1,187 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>PixelAI</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f4f4f4;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
+<meta charset="UTF-8">
+<title>PixelAI</title>
 
-    .box {
-      width: 600px;
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
 
-    h1 { margin: 0; }
+.box{ width:780px; }
 
-    .row {
-      display: flex;
-      margin-top: 15px;
-      gap: 10px;
-    }
+h1{ text-align:center; }
 
-    input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-    }
+input{
+  width:100%;
+  padding:12px;
+  border-radius:8px;
+  border:none;
+}
 
-    button {
-      padding: 10px 15px;
-      border: none;
-      background: black;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+button{
+  width:100%;
+  margin-top:10px;
+  padding:12px;
+  border:none;
+  border-radius:8px;
+  background:#22c55e;
+  cursor:pointer;
+}
 
-    #out {
-      margin-top: 15px;
-      padding: 15px;
-      background: #eee;
-      border-radius: 8px;
-      min-height: 100px;
-      white-space: pre-wrap;
-    }
-  </style>
+#out{
+  margin-top:15px;
+  background:#111a2e;
+  padding:15px;
+  border-radius:8px;
+  height:260px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+}
+
+.info{
+  text-align:center;
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:10px;
+}
+</style>
 </head>
 
 <body>
 
 <div class="box">
-  <h1>PixelAI</h1>
 
-  <div class="row">
-    <input id="q" placeholder="Bir şey sor..." />
-    <button onclick="ask()">Gönder</button>
-  </div>
+<h1>PixelAI</h1>
 
-  <div id="out">Sonuç burada...</div>
+<input id="q" placeholder="Bir şey yaz..." />
+<button onclick="ask()">Gönder</button>
+
+<div id="out"></div>
+
+<div class="info">
+Soru kapasitesi: sınırsız
+</div>
+
 </div>
 
 <script>
-const API_KEY = "AQ.Ab8RN6KTE9ouVimglD7BWfUjUdb8PbCYNTsmBBz3Rchumh7pUw"; // <-- buraya Gemini key koy
 
-async function ask() {
-  const q = document.getElementById("q").value;
+document.getElementById("q").addEventListener("keypress", e=>{
+  if(e.key==="Enter") ask();
+});
+
+function isMath(q){
+  return /^[0-9+\-*/(). ]+$/.test(q);
+}
+
+function ask(){
+  const q = document.getElementById("q").value.trim().toLowerCase();
   const out = document.getElementById("out");
 
-  if (!q) return;
+  if(!q) return;
 
-  out.innerText = "Düşünüyor...";
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: q }]
-            }
-          ]
-        })
-      }
-    );
-
-    const data = await res.json();
-
-    const answer =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-      "Cevap alınamadı.";
-
-    out.innerText = answer;
-
-  } catch (e) {
-    out.innerText = "Hata oluştu: API çalışmıyor veya key yanlış.";
-  }
+  document.getElementById("q").value = "";
+  out.innerText = cevap(q);
 }
+
+// 🌍 MEGA BİLGİ BANKASI
+function bilgi(q){
+
+  if(q.includes("uzay")){
+    if(q.includes("kaç evren")) return "Şu an bilim sadece 1 evren olduğunu kabul eder.";
+    if(q.includes("kara delik")) return "Kara delik ışığın bile kaçamadığı bölgedir.";
+    if(q.includes("galaksi")) return "Milyarlarca galaksi olduğu düşünülmektedir.";
+    return "Uzay çok geniştir ve büyük kısmı bilinmemektedir.";
+  }
+
+  if(q.includes("kaç gezegen")) return "Güneş sisteminde 8 gezegen vardır.";
+  if(q.includes("dünya")) return "Dünya 3. gezegendir.";
+  if(q.includes("güneş")) return "Güneş bir yıldızdır.";
+  if(q.includes("ay")) return "Ay Dünya'nın uydusudur.";
+
+  if(q.includes("atom")) return "Atom maddenin en küçük yapı taşıdır.";
+  if(q.includes("robot")) return "Robotlar programlanabilen makinelerdir.";
+  if(q.includes("insan")) return "İnsan gelişmiş bir canlıdır.";
+
+  if(q.includes("türkiye")) return "Türkiye iki kıtada yer alan bir ülkedir.";
+  if(q.includes("internet")) return "İnternet dünya genelinde bilgi ağıdır.";
+  if(q.includes("okul")) return "Okul eğitim kurumudur.";
+
+  return null;
+}
+
+// 🧠 EN ÇOK SORULANLAR
+function popular(q){
+
+  if(q.includes("nasılsın")) return "İyiyim, teşekkür ederim.";
+  if(q.includes("napıyon") || q.includes("napıyorsun")) return "İyiyim, sen napıyon?";
+  if(q.includes("sıkıldım")) return "İstersen sana soru sorabilirim.";
+  if(q.includes("yardım")) return "Hangi konuda yardım istiyorsun?";
+  if(q.includes("neden")) return "Sebebi değişebilir.";
+  if(q.includes("nasıl")) return "Adım adım açıklayabilirim.";
+
+  // 😄 DUYGU SİSTEMİ (YENİ EKLENDİ)
+  if(q.includes("bende iyiyim") || q.includes("iyiyim") || q.includes("iyim")){
+    return "Güzel 👍 sorularını alayım";
+  }
+
+  if(
+    q.includes("kötüyüm") ||
+    q.includes("üzgünüm") ||
+    q.includes("moralim bozuk") ||
+    q.includes("berbatım")
+  ){
+    return "Geçmiş olsun 😔 neyse sorularını alayım";
+  }
+
+  return null;
+}
+
+// 🧠 ANA CEVAP
+function cevap(q){
+
+  // 🧮 MATEMATİK
+  if(isMath(q)){
+    try{
+      return "Sonuç: " + eval(q);
+    }catch{
+      return "Hatalı işlem.";
+    }
+  }
+
+  // 🤝 SELAM
+  if(q.includes("selam")) return "Selam 👋";
+  if(q.includes("merhaba")) return "Merhaba 👋";
+
+  // 💬 POPULAR + DUYGU
+  const p = popular(q);
+  if(p) return p;
+
+  // 🌍 BİLGİ
+  const b = bilgi(q);
+  if(b) return b;
+
+  // 🧠 FALLBACK
+  const list = [
+    "Bunu tam anlayamadım.",
+    "Biraz daha açık yazar mısın?",
+    "İlginç bir soru.",
+    "Bu konu biraz karmaşık.",
+    "Daha fazla bilgi lazım."
+  ];
+
+  return list[Math.floor(Math.random()*list.length)];
+}
+
 </script>
 
 </body>
