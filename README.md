@@ -1,2 +1,116 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>PixelAI</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f4f4f4;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
 
+    .box {
+      width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    h1 { margin: 0; }
+
+    .row {
+      display: flex;
+      margin-top: 15px;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: black;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #out {
+      margin-top: 15px;
+      padding: 15px;
+      background: #eee;
+      border-radius: 8px;
+      min-height: 100px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="box">
+  <h1>PixelAI</h1>
+
+  <div class="row">
+    <input id="q" placeholder="Bir şey sor..." />
+    <button onclick="ask()">Gönder</button>
+  </div>
+
+  <div id="out">Sonuç burada...</div>
+</div>
+
+<script>
+const API_KEY = "BURAYA_API_KEY_YAZ"; // <-- buraya Gemini key koy
+
+async function ask() {
+  const q = document.getElementById("q").value;
+  const out = document.getElementById("out");
+
+  if (!q) return;
+
+  out.innerText = "Düşünüyor...";
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [{ text: q }]
+            }
+          ]
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    const answer =
+      data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+      "Cevap alınamadı.";
+
+    out.innerText = answer;
+
+  } catch (e) {
+    out.innerText = "Hata oluştu: API çalışmıyor veya key yanlış.";
+  }
+}
+</script>
+
+</body>
+</html>
 
