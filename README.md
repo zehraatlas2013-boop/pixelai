@@ -71,7 +71,7 @@
 </div>
 
 <script>
-const API_KEY = "BURAYA_API_KEY_YAZ"; // <-- buraya Gemini key koy
+const API_KEY = "AQ.Ab8RN6KTE9ouVimglD7BWfUjUdb8PbCYNTsmBBz3Rchumh7pUw"; // <-- buraya Gemini key koy
 
 async function ask() {
   const q = document.getElementById("q").value;
