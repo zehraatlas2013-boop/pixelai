@@ -1,62 +1,68 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PixelAI Search</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixelAI Search</title>
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #0b0d12;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0b0d12;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-.box {
-  width: 360px;
-  text-align: center;
-}
+    .box {
+      width: 360px;
+      text-align: center;
+      padding: 20px;
+    }
 
-input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: none;
-  margin-top: 10px;
-}
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      margin-top: 10px;
+      box-sizing: border-box;
+      display: block;
+    }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border: none;
-  background: #5a7cff;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      background: #5a7cff;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      display: block;
+      font-weight: bold;
+    }
 
-button:hover {
-  background: #3f63ff;
-}
+    button:hover {
+      background: #3f63ff;
+    }
 
-#out {
-  margin-top: 20px;
-  background: #1a1d27;
-  padding: 12px;
-  min-height: 120px;
-  border-radius: 8px;
-  white-space: pre-wrap;
-  text-align: left;
-}
-</style>
+    #out {
+      margin-top: 20px;
+      background: #1a1d27;
+      padding: 12px;
+      min-height: 120px;
+      border-radius: 8px;
+      white-space: pre-wrap;
+      text-align: left;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="box">
@@ -65,21 +71,31 @@ button:hover {
   <input id="q" placeholder="Ne öğrenmek istiyorsun?">
   <button onclick="ask()">Ara</button>
 
-  <div id="out"></div>
+  <div id="out">İstediğin her şeyi sorabilirsin...</div>
 </div>
 
 <script>
 async function ask() {
-  const q = document.getElementById("q").value;
+  const q = document.getElementById("q").value.trim();
   const out = document.getElementById("out");
+
+  if (!q) {
+    out.innerText = "Lütfen boş bırakma, bir şeyler yaz! ✍️";
+    return;
+  }
 
   out.innerText = "AI düşünüyor... 🤖";
 
-  out.innerText = await gemini(q);
+  try {
+    out.innerText = await gemini(q);
+  } catch (error) {
+    out.innerText = "Beklenmedik bir hata oluştu ⚠️";
+  }
 }
 
 async function gemini(text) {
-  const API_KEY = "AQ.Ab8RN6KQ7N9GkWERiTXqmf5Un6XPCKgTUEciZR8XmR5YZZeIJ";
+  // DIKKAT: API anahtarını buraya yazmak sadece yerel (local) denemeler içindir!
+  const API_KEY = "GEMINI_API_KEY_BURAYA"; 
 
   try {
     const res = await fetch(
@@ -101,14 +117,21 @@ async function gemini(text) {
 
     const data = await res.json();
 
-    return data.candidates?.[0]?.content?.parts?.[0]?.text
-      || "Cevap alınamadı";
+    // Gelen veri yapısı kontrolü ve hata yönetimi
+    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+      return data.candidates[0].content.parts[0].text;
+    } else if (data.error) {
+      return "API Hatası: " + data.error.message;
+    }
+    
+    return "Cevap yapısı çözülemedi.";
 
   } catch (e) {
-    return "AI çalışmadı ⚠️";
+    console.error(e);
+    return "AI çalışmadı veya bağlantı reddedildi ⚠️";
   }
 }
 </script>
 
 </body>
-</html>                 (bu kodu asıl dosya haline getirebilirim
+</html>
